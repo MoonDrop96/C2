@@ -1,0 +1,5 @@
+pip install torch torchvision
+pip install matplotlib opencv-python
+git clone https://github.com/ultralytics/yolov5
+cd yolov5
+pip install -r requirements.txt

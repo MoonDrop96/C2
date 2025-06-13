@@ -1,0 +1,35 @@
+import torch
+import cv2
+import matplotlib.pyplot as plt
+
+# Carrega o modelo YOLOv5 pré-treinado (YOLOv5s = small, mais rápido)
+model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
+
+# Classes de interesse (carros, pessoas, semáforos, etc.)
+classes_interesse = ['person', 'car', 'bus', 'truck', 'motorcycle', 'bicycle', 'traffic light']
+
+# Carrega a imagem de entrada
+img_path = 'caminho/para/sua/imagem.jpg'
+img = cv2.imread(img_path)
+img_rgb = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+
+# Faz a detecção
+results = model(img_rgb)
+
+# Filtra apenas as classes de interesse
+detected = results.pandas().xyxy[0]
+filtradas = detected[detected['name'].isin(classes_interesse)]
+
+# Exibe os resultados
+for i, row in filtradas.iterrows():
+    x1, y1, x2, y2 = int(row['xmin']), int(row['ymin']), int(row['xmax']), int(row['ymax'])
+    label = f"{row['name']} {row['confidence']:.2f}"
+    cv2.rectangle(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+    cv2.putText(img, label, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 255, 0), 2)
+
+# Mostrar imagem com detecções
+plt.figure(figsize=(10, 8))
+plt.imshow(cv2.cvtColor(img, cv2.COLOR_BGR2RGB))
+plt.axis('off')
+plt.title("Objetos Detectados")
+plt.show()
